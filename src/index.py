@@ -1,56 +1,66 @@
 import gi
-import openai
-import os
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk
 
-class CommentSectionApp(Gtk.Window):
+class MainWindow(Gtk.ApplicationWindow):
+    def __init__(self, app):
+        super().__init__(application=app)
+        self.set_title("My Web Page")
+
+        # Add CSS
+        css_provider = Gtk.CssProvider()
+        css_provider.load_from_path("./style.css")
+
+
+        main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        self.set_child(main_box)
+        
+        # First row
+        combo_box = Gtk.ComboBoxText()
+        combo_box.append_text("GPT-3")
+        combo_box.append_text("GPT-3.5")
+        combo_box.append_text("GPT-4")
+        combo_box.set_active(0)
+
+        combo_box_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, halign=Gtk.Align.CENTER, valign=Gtk.Align.CENTER)
+        combo_box_box.append(combo_box)
+        main_box.append(combo_box_box)
+
+        # Second row
+        content_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
+        main_box.append(content_box)
+
+        left_spacer = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        left_spacer.set_hexpand(True)
+        left_spacer.set_css_classes(["bg-gray"])
+
+        content_box.append(left_spacer)
+
+        content_area = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, halign=Gtk.Align.CENTER, valign=Gtk.Align.CENTER)
+        content_box.append(content_area)
+
+        label = Gtk.Label(label="Hello, World!")
+        content_area.append(label)
+
+        text_view = Gtk.TextView()
+        content_area.append(text_view)
+
+        button = Gtk.Button(label="Submit")
+        content_area.append(button)
+
+        right_spacer = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        right_spacer.set_hexpand(True)
+        right_spacer.set_css_classes(["bg-gray"])
+
+        content_box.append(right_spacer)
+
+class Application(Gtk.Application):
     def __init__(self):
-        Gtk.Window.__init__(self, title="Comment Section")
-        ## Header bar
-        header_bar = Gtk.HeaderBar()
-        header_bar.set_show_close_button(True)
-        header_bar.props.title = "ChatGPT.py"
-        self.set_titlebar(header_bar)
-        # Main vertical box
-        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
-        self.add(vbox)
-        # User input box
-        self.entry = Gtk.Entry()
-        self.entry.set_text("")
-        vbox.pack_start(self.entry, False, False, 0)
+        super().__init__()
 
-        # Submit button
-        submit_button = Gtk.Button(label="Submit")
-        submit_button.connect("clicked", self.on_submit_clicked)
-        vbox.pack_start(submit_button, False, False, 0)
+    def do_activate(self):
+        win = MainWindow(self)
+        win.show()
 
-        # Scrolled window for comments
-        scrolled_window = Gtk.ScrolledWindow()
-        scrolled_window.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
-        vbox.pack_start(scrolled_window, True, True, 0)
-        # Comment list box
-        self.comment_list_box = Gtk.ListBox()
-        scrolled_window.add(self.comment_list_box)
-
-    def on_submit_clicked(self, button):
-        # Get user input
-        user_input = self.entry.get_text()
-
-        # Create a label for the comment
-        comment_label = Gtk.Label()
-        comment_label.set_line_wrap(True)
-        comment_label.set_text(user_input)
-
-        # Add comment to the list box
-        self.comment_list_box.add(comment_label)
-        self.comment_list_box.show_all()
-
-        # Clear the input field
-        self.entry.set_text("")
-
-# Run the application
-app = CommentSectionApp()
-app.connect("destroy", Gtk.main_quit)
-app.show_all()
-Gtk.main()
+app = Application()
+app.run()
