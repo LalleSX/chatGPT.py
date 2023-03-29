@@ -1,7 +1,10 @@
+import glob
 import gi
 import openai
 import requests
 import os
+import json
+from time import strftime
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk, GLib
 # Get the api key from the txt file
@@ -14,6 +17,32 @@ class CommentSectionApp(Gtk.Window):
         super().__init__(title="Comment Section")
         self.setup_header_bar()
         self.setup_main_layout()
+    
+    def save_chat(self):
+        file_name = f"chat_{int(strftime('%d%m%y'))}.json"
+        chat_data = {"comments": []}
+        for row in self.comment_list_box.get_children():
+            label = row.get_children()[0]
+            comment_text = label.get_text()
+            chat_data["comments"].append(comment_text)
+        
+        with open(file_name, "w") as f:
+            json.dump(chat_data, f)
+
+    def load_chat(self):
+    
+        chat_files = sorted(glob.glob("chat_*.json"))
+
+    
+        for file_name in chat_files:
+            with open(file_name, "r") as f:
+                chat_data = json.load(f)
+                for comment_text in chat_data["comments"]:
+                    comment_label = Gtk.Label()
+                    comment_label.set_line_wrap(True)
+                    comment_label.set_text(comment_text)
+                    self.comment_list_box.add(comment_label)
+                    self.comment_list_box.show_all()
 
     def setup_header_bar(self):
         header_bar = Gtk.HeaderBar()
@@ -36,7 +65,7 @@ class CommentSectionApp(Gtk.Window):
         vbox.pack_start(self.entry, False, False, 0)
 
     def setup_model_options(self, vbox):
-        options = ["GPT-3", "GPT-3.5", "GPT-4"]
+        options = ["GPT-3.5-turbo", "GPT-4"]
         self.combo = Gtk.ComboBoxText()
         for option in options:
             self.combo.append_text(option)
@@ -61,6 +90,7 @@ class CommentSectionApp(Gtk.Window):
 
         self.comment_list_box = Gtk.ListBox()
         scrolled_window.add(self.comment_list_box)
+        self.load_chat()
 
     def fetch_response(self, user_input):
         model = self.combo.get_active_text().lower()
@@ -74,7 +104,7 @@ class CommentSectionApp(Gtk.Window):
                     {"role": "user", "content": user_input}
                 ],
                 "temperature": 0.8,
-                "max_tokens": 100,
+                "max_tokens": 150,
             }
         ).json()
         return response["choices"][0]["message"]["content"].strip()  # Fixed KeyError
@@ -104,6 +134,7 @@ class CommentSectionApp(Gtk.Window):
             self.comment_list_box.show_all()
 
         Gdk.threads_add_idle(GLib.PRIORITY_DEFAULT_IDLE, get_response_and_update)
+        self.save_chat()
 
 def main():
     app = CommentSectionApp()
