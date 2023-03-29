@@ -1,0 +1,14 @@
+openai.ChatCompletion.create(
+model: string
+messages: array
+temperature: number
+top_p: number Optional
+n: integer
+stream: boolean
+stop: string or array
+max_tokens: integer
+presence_penalty: number
+frequency_penalty: number
+logit_bias: map
+user: string
+)
