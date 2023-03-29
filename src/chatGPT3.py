@@ -4,7 +4,9 @@ import requests
 import os
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk, GLib
-openai.api_key = "API_KEY HERE"
+# Get the api key from the txt file
+openai.api_key = open("src/apikey.txt", "r").read()
+print (openai.api_key)
 
 
 class CommentSectionApp(Gtk.Window):

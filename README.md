@@ -14,7 +14,7 @@ Paying $20 + is wayyyy to much for GPT-4, using the API key you pay per use inst
 
 ## Requirements.
 
-- OpenAI API key.
+- [OpenAI API key](https://platform.openai.com/account/api-keys) ($)
 
 - GTK 3.0 must be installed to display the application.
 
