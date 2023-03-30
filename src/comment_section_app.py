@@ -1,38 +1,16 @@
 import glob
-import openai
-import requests
 import json
-from time import strftime
 from tkinter import *
 from tkinter.ttk import *
+from time import strftime
 
-# Get the api key from the txt file
-openai.api_key = open("src/apikey.txt", "r").read()
+from api import get_api_key, fetch_response
 
 class CommentSectionApp(Tk):
     def __init__(self):
         super().__init__()
         self.title("Comment Section")
         self.setup_main_layout()
-
-    def save_chat(self):
-        file_name = f"chat_{int(strftime('%d%m%y'))}.json"
-        chat_data = {"comments": []}
-        for i in range(self.comment_list_box.size()):
-            comment_text = self.comment_list_box.get(i)
-            chat_data["comments"].append(comment_text)
-
-        with open(file_name, "w") as f:
-            json.dump(chat_data, f)
-
-    def load_chat(self):
-        chat_files = sorted(glob.glob("chat_*.json"))
-
-        for file_name in chat_files:
-            with open(file_name, "r") as f:
-                chat_data = json.load(f)
-                for comment_text in chat_data["comments"]:
-                    self.comment_list_box.insert(END, comment_text)
 
     def setup_main_layout(self):
         self.setup_user_input_box()
@@ -69,7 +47,8 @@ class CommentSectionApp(Tk):
     def setup_new_chat_button(self):
         new_chat_button = Button(self, text="New Chat", command=self.start_new_chat)
         new_chat_button.pack(padx=10, pady=10)
-
+    
+    ## Frontend to backend
     def get_chat_history(self):
         chat_history = []
         for comment_text in self.comment_list_box.get(0, END):
@@ -82,18 +61,7 @@ class CommentSectionApp(Tk):
         model = self.combo.get().lower()
         chat_history = self.get_chat_history()
         chat_history.append({"role": "user", "content": user_input})
-        
-        response = requests.post(
-            "https://api.openai.com/v1/chat/completions",
-            headers={"Authorization": f"Bearer {openai.api_key}"},
-            json={
-                "model": model,
-                "messages": chat_history,
-                "temperature": 0.8,
-                "max_tokens": 150,
-                }
-            ).json()
-        return response["choices"][0]["message"]["content"].strip()
+        return fetch_response(get_api_key(), model, chat_history)
 
     def on_submit_clicked(self):
         user_input = self.entry.get()
@@ -111,10 +79,20 @@ class CommentSectionApp(Tk):
 
     def start_new_chat(self):
         self.comment_list_box.delete(0, END)
+    
+    def save_chat(self):
+        file_name = f"chat_{int(strftime('%d%m%y'))}.json"
+        chat_data = {"comments": []}
+        for i in range(self.comment_list_box.size()):
+            comment_text = self.comment_list_box.get(i)
+            chat_data["comments"].append(comment_text)
+        with open(file_name, "w") as f:
+            json.dump(chat_data, f)
 
-def main():
-    app = CommentSectionApp()
-    app.mainloop()
-
-if __name__ == "__main__":
-    main()
+    def load_chat(self):
+        chat_files = sorted(glob.glob("chat_*.json"))
+        for file_name in chat_files:
+            with open(file_name, "r") as f:
+                chat_data = json.load(f)
+                for comment_text in chat_data["comments"]:
+                    self.comment_list_box.insert(END, comment_text)
