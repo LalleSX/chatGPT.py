@@ -36,12 +36,9 @@ class CommentSectionApp(Tk):
     def setup_comment_section(self):
         self.scrolled_window = Scrollbar(self)
         self.scrolled_window.pack(side=RIGHT, fill=Y)
-
         self.comment_list_box = Listbox(self, yscrollcommand=self.scrolled_window.set)
         self.comment_list_box.pack(fill=BOTH, expand=True)
-
         self.scrolled_window.config(command=self.comment_list_box.yview)
-
         self.load_chat()
 
     def setup_new_chat_button(self):
