@@ -11,26 +11,27 @@ class CommentSectionApp(Tk):
         super().__init__()
         self.title("Comment Section")
         self.setup_main_layout()
-
+    
     def setup_main_layout(self):
+        self.setup_comment_section()
+        self.setup_new_chat_button()
         self.setup_user_input_box()
         self.setup_model_options()
         self.setup_submit_button()
-        self.setup_comment_section()
-        self.setup_new_chat_button()
+
 
     def setup_user_input_box(self):
-        self.entry = Entry(self)
+        self.entry = Entry(self, width=30, font=("Arial", 20), justify=CENTER)
         self.entry.pack(padx=10, pady=10)
 
     def setup_model_options(self):
         options = ["GPT-3.5-turbo", "GPT-4"]
-        self.combo = Combobox(self, values=options, state="readonly")
+        self.combo = Combobox(self, values=options, state="readonly", justify=LEFT)
         self.combo.set(options[0])
         self.combo.pack(padx=10, pady=10)
 
     def setup_submit_button(self):
-        submit_button = Button(self, text="Submit", command=self.on_submit_clicked)
+        submit_button = Button(self, text="Submit", command=self.on_submit_clicked, width=30)
         submit_button.pack(padx=10, pady=10)
 
     def setup_comment_section(self):
@@ -43,7 +44,7 @@ class CommentSectionApp(Tk):
 
     def setup_new_chat_button(self):
         new_chat_button = Button(self, text="New Chat", command=self.start_new_chat)
-        new_chat_button.pack(padx=10, pady=10)
+        new_chat_button.pack(padx=10, pady=10, side=BOTTOM)
     
     ## Frontend to backend
     def get_chat_history(self):
