@@ -1,5 +1,7 @@
 # Very early pyton ChatGPT like application.
 
+![pic-selected-230404-0217-19](https://user-images.githubusercontent.com/29478339/229654386-c534323a-467f-4d76-b5ca-5222b758d660.png)
+
 This is a preliminary version of a Python-based ChatGPT application intended to operate as a local system instead of a browser-based version. However, it still requires a Wi-Fi connection to access OpenAI's API servers. 
 
 The reason for utilizing OpenAI's API is that it allows for greater flexibility in the types of requests made.
