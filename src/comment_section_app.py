@@ -1,32 +1,37 @@
 import glob
 import json
 from tkinter import *
-import tkinter.messagebox
-from tkinter.ttk import Combobox
 import customtkinter
 from time import strftime
+from api import get_api_key, fetch_response
 
 customtkinter.set_appearance_mode("Dark")
 customtkinter.set_default_color_theme("blue")
-from api import get_api_key, fetch_response
+
 
 class CommentSectionApp(customtkinter.CTk):
     def __init__(self):
         super().__init__()
         self.title("Comment Section")
         self.setup_main_layout()
-    
+
     def setup_main_layout(self):
+        self.configure_layout()
         self.setup_comment_section()
         self.setup_new_chat_button()
         self.setup_user_input_box()
         self.setup_model_options()
         self.setup_submit_button()
+        self.setup_sidebar()
+
+    def configure_layout(self):
         self.title("ChatGPT.py")
         self.geometry(f"{1100}x{580}")
         self.grid_columnconfigure(1, weight=1)
         self.grid_columnconfigure((2, 3), weight=0)
         self.grid_rowconfigure((0, 1, 2), weight=1)
+
+    def setup_sidebar(self):
         self.sidebar_frame = customtkinter.CTkFrame(self, width=140, corner_radius=0)
         self.sidebar_frame.grid(row=0, column=0, rowspan=4, sticky="nsew")
         self.sidebar_frame.grid_rowconfigure(4, weight=1)
@@ -65,7 +70,7 @@ class CommentSectionApp(customtkinter.CTk):
             chat_history.append({"role": role, "content": content})
         return chat_history
 
-    def fetch_response(self, user_input):
+    def get_response(self, user_input):
         model = self.combo.get().lower()
         chat_history = self.get_chat_history()
         chat_history.append({"role": "user", "content": user_input})
@@ -73,39 +78,43 @@ class CommentSectionApp(customtkinter.CTk):
 
     def on_submit_clicked(self):
         user_input = self.entry.get()
-
         if user_input == "":
-            return None
+            return
+        self.update_comment_list_box("You: " + user_input)
+
+        response_text = self.get_response(user_input)
+        self.update_comment_list_box("Assistant: " + response_text)
+
+    def update_comment_list_box(self, text):
         self.comment_list_box.configure(state="normal")
-        self.comment_list_box.insert(END, "You: " + user_input+"\n")
-
-        self.entry.delete(0, END)
-
-        response_text = self.fetch_response(user_input)
-        self.comment_list_box.insert(END, "Assistant: " + response_text+"\n")
-        self.save_chat()
+        self.comment_list_box.insert(END, text + "\n")
         self.comment_list_box.configure(state="disabled")
 
     def start_new_chat(self):
         self.comment_list_box.configure(state="normal")
         self.comment_list_box.delete("0.0", "end")
         self.comment_list_box.configure(state="disabled")
-    
+
     def save_chat(self):
         file_name = f"chat_{int(strftime('%d%m%y'))}.json"
-        chat_data = {"comments": []}
-        for i in range(self.comment_list_box.size()):
-            comment_text = self.comment_list_box.get(f"{i}.0", f"{i}.end")
-            chat_data["comments"].append(comment_text)
+        chat_data = {"comments": self.comment_list_box.get("0.0", "end").splitlines()}
         with open(file_name, "w") as f:
             json.dump(chat_data, f)
 
     def load_chat(self):
         chat_files = sorted(glob.glob("chat_*.json"))
         for file_name in chat_files:
-            with open(file_name, "r") as f:
-                chat_data = json.load(f)
-                for comment_text in chat_data["comments"]:
-                    self.comment_list_box.configure(state="normal")
-                    self.comment_list_box.insert(END, comment_text)
-                    self.comment_list_box.configure(state="disabled")
+            self.chat_files_combo.add(file_name)
+        if len(chat_files) > 0:
+            self.chat_files_combo.set(chat_files[-1])
+            self.load_chat_file()
+
+    def load_chat_file(self):
+        file_name = self.chat_files_combo.get()
+        with open(file_name, "r") as f:
+            chat_data = json.load(f)
+        self.comment_list_box.configure(state="normal")
+        self.comment_list_box.delete("0.0", "end")
+        for comment in chat_data["comments"]:
+            self.comment_list_box.insert(END, comment + "\n")
+        self.comment_list_box.configure(state="disabled")

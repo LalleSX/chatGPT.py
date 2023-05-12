@@ -4,7 +4,7 @@ import requests
 def get_api_key():
     return open("src/apikey.txt", "r").read()
 
-def fetch_response(api_key:str, model:str, chat_history:list):
+def fetch_response(api_key: str, model: str, chat_history:list):
     response = requests.post(
         "https://api.openai.com/v1/chat/completions",
         headers={"Authorization": f"Bearer {api_key}"},
