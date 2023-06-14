@@ -11,7 +11,7 @@ def fetch_response(api_key: str, model: str, chat_history:list):
             "model": model,
             "messages": chat_history,
             "temperature": 0.8,
-            "max_tokens": 200,
+            "max_tokens": 150,
         },
         timeout=10,
     ).json()
