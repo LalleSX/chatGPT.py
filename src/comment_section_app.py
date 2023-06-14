@@ -1,9 +1,12 @@
 import glob
 import json
-from tkinter import *
-import customtkinter
 from time import strftime
-from api import get_api_key, fetch_response
+
+from tkinter import END
+
+import customtkinter
+
+from api import fetch_response, get_api_key
 
 customtkinter.set_appearance_mode("Dark")
 customtkinter.set_default_color_theme("blue")
@@ -118,3 +121,10 @@ class CommentSectionApp(customtkinter.CTk):
         for comment in chat_data["comments"]:
             self.comment_list_box.insert(END, comment + "\n")
         self.comment_list_box.configure(state="disabled")
+        
+def main():
+    app = CommentSectionApp()
+    app.mainloop()
+
+if __name__ == "__main__":
+    main()

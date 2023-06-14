@@ -1,4 +1,3 @@
-import openai
 import requests
 
 def get_api_key():
@@ -13,6 +12,7 @@ def fetch_response(api_key: str, model: str, chat_history:list):
             "messages": chat_history,
             "temperature": 0.8,
             "max_tokens": 150,
-        }
+        },
+        timeout=10,
     ).json()
     return response["choices"][0]["message"]["content"].strip()
