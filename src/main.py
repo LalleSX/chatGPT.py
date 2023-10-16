@@ -1,6 +1,5 @@
 import os
 import json
-import glob
 from time import strftime
 from pathlib import Path
 from tkinter import END
